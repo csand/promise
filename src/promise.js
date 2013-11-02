@@ -18,6 +18,7 @@
   function _resolve(origin, z) {
     cleanContext(function() {
       origin.state = 'fulfilled';
+      origin.zVal = z;
       var i, l, p, resVal;
       while (origin._promises.length) {
         resVal = undefined;
@@ -39,6 +40,7 @@
   function _reject(origin, z) {
     cleanContext(function() {
       origin.state = 'rejected';
+      origin.zVal = z;
       var i, l, p, resVal;
       while (origin._promises.length) {
         resVal = undefined;
@@ -70,6 +72,11 @@
     then: function(callback, errback) {
       var promise = new Promise();
       this._promises.push([callback, errback, promise]);
+      if (this.state === 'fulfilled') {
+        _resolve(this, this._zVal);
+      } else if (this.state === 'rejected') {
+        _reject(this, this._zVal);
+      }
       return promise;
     },
 
