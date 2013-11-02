@@ -1,5 +1,7 @@
-(function(root) {
+(function() {
   "use strict";
+
+  var root = this;
 
   function extend(dest, src) {
     for (var key in src) {
@@ -146,4 +148,15 @@
     }
   });
 
-}).call(this);
+  if (root.define && root.define.amd) {
+    root.define(function() { return Promise; });
+  } else {
+    var oldPromise = root.Promise;
+    root.Promise = Promise;
+    Promise.noConflict = function() {
+      root.Promise = oldPromise;
+      return this;
+    };
+  }
+
+}.call(window));
