@@ -19,7 +19,6 @@
 
   function _resolve(origin, z) {
     cleanContext(function() {
-      origin.state = 'fulfilled';
       origin.zVal = z;
       var i, l, p, resVal;
       while (origin._promises.length) {
@@ -41,9 +40,8 @@
 
   function _reject(origin, z) {
     cleanContext(function() {
-      origin.state = 'rejected';
       origin.zVal = z;
-      var i, l, p, resVal;
+      var p, resVal;
       while (origin._promises.length) {
         resVal = undefined;
         p = origin._promises.shift();
@@ -90,8 +88,8 @@
       if (this === x) {
         throw new TypeError('Cannot resolve a Promise with itself');
       }
-      // If x is one of our Promises, assume its state
       if (x instanceof Promise) {
+        // If x is one of our Promises, assume its state
         (function(origin) {
           x.then(function(y) {
             origin.resolve(y);
@@ -99,8 +97,8 @@
             origin.reject(e);
           });
         })(this);
-      // If x is an object or a function, look for x.then
       } else if (typeof x === 'function' || typeof x === 'object') {
+        // If x is an object or a function, look for x.then
         var then;
         try {
           then = x.then;
@@ -135,6 +133,8 @@
           _resolve(this, x);
         }
       } else {
+        // Normal resolution process
+        this.state = 'fulfilled';
         _resolve(this, x);
       }
     },
@@ -144,6 +144,7 @@
         throw new Error('Promise has already been ' + this.state +
                         ', cannot reject');
       }
+      this.state = 'rejected';
       _reject(this, err);
     }
   });
